@@ -1,0 +1,31 @@
+{
+  "name": "suchwowx-smart-contract",
+  "version": "1.0.0",
+  "description": "Smart contract for the SuchwowX interplanetary meme project.",
+  "main": "index.js",
+  "scripts": {
+    "test": "truffle test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lalanza808/suchwowx-smart-contract.git"
+  },
+  "author": "lza_menace@protonmail.com",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lalanza808/suchwowx-smart-contract/issues"
+  },
+  "homepage": "https://github.com/lalanza808/suchwowx-smart-contract",
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.3.3",
+    "dotenv": "^10.0.0",
+    "ganache-cli": "^6.12.2",
+    "truffle": "^5.4.19",
+    "truffle-hdwallet-provider": "^1.0.17",
+    "truffle-plugin-verify": "^0.5.18",
+    "web3": "^1.6.1"
+  },
+  "engines": {
+    "node": "^12.18.x"
+  }
+}

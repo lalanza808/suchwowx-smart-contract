@@ -1,0 +1,10 @@
+build/
+flattened/
+node_modules/
+.env*
+*.DS_Store
+data
+package-lock.json
+*.tar.gz
+output.json
+addr-to-claim.json
