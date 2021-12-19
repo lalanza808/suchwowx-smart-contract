@@ -22,7 +22,8 @@ contract SuchwowX is ERC721, ERC721URIStorage, Ownable {
     mapping (address => uint256) public tipperTips;
 
     // Define starting contract state
-    string public baseURI = "";
+    string public creator = "lzamenace.eth";
+    string public version = "v0.1";
 
     constructor() ERC721("SuchwowX", "SWX") {}
 
@@ -72,6 +73,6 @@ contract SuchwowX is ERC721, ERC721URIStorage, Ownable {
         internal
         override(ERC721, ERC721URIStorage)
     {
-        
+        // Prevent burning
     }
 }
