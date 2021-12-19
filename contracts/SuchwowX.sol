@@ -20,10 +20,11 @@ contract SuchwowX is ERC721, ERC721URIStorage, Ownable {
     mapping (address => uint256) public creatorTips;
     mapping (address => uint256) public creatorTokensMinted;
     mapping (address => uint256) public tipperTips;
+    mapping (string => uint256) public metadataTokenId;
 
     // Define starting contract state
-    string public creator = "lzamenace.eth";
-    string public version = "v0.1";
+    string public contractCreator = "lzamenace.eth";
+    string public contractVersion = "v0.1";
 
     constructor() ERC721("SuchwowX", "SWX") {}
 
@@ -40,6 +41,8 @@ contract SuchwowX is ERC721, ERC721URIStorage, Ownable {
 
     // Mint a new token with a specific metadata hash location
     function mint(string memory metadataIPFSHash) external {
+        require(bytes(metadataIPFSHash).length > 0, "Metadata IPFS hash cannot be empty.");
+        require(metadataTokenId[metadataIPFSHash] == 0, "That metadata IPFS hash has already been referenced.");
         uint256 tokenId = totalSupply() + 1; // Start at 1
         _safeMint(msg.sender, tokenId);
         _tokenSupply.increment();
@@ -50,6 +53,7 @@ contract SuchwowX is ERC721, ERC721URIStorage, Ownable {
 
     // Tip a token and it's creator
     function tip(uint256 tokenId) public payable {
+        require(tokenId <= totalSupply(), "Cannot tip non-existent token.");
         address creator = tokenCreator[tokenId];
         tokenTips[tokenId] = tokenTips[tokenId].add(msg.value);
         creatorTips[creator] = creatorTips[creator].add(msg.value);
