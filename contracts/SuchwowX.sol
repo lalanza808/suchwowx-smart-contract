@@ -27,7 +27,7 @@ contract SuchwowX is ERC721, ERC721URIStorage, Ownable {
     string public contractCreator = "lzamenace.eth";
     string public contractVersion = "v0.1";
 
-    constructor() ERC721("SuchWowX", "SWX") {}
+    constructor() ERC721("SuchwowX", "SWX") {}
 
     // Withdraw contract balance to creator (mnemonic seed address 0)
     function withdraw() public onlyOwner {
