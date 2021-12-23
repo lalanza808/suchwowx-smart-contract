@@ -21,6 +21,7 @@ contract SuchwowX is ERC721, ERC721URIStorage, Ownable {
     mapping (address => uint256) public creatorTokensMinted;
     mapping (address => uint256) public tipperTips;
     mapping (string => uint256) public metadataTokenId;
+    mapping (address => string) public creatorWowneroAddress;
 
     // Define starting contract state
     string public contractCreator = "lzamenace.eth";
@@ -37,6 +38,12 @@ contract SuchwowX is ERC721, ERC721URIStorage, Ownable {
     // Get total supply based upon counter
     function totalSupply() public view returns (uint256) {
         return _tokenSupply.current();
+    }
+
+    // Specify new Wownero address
+    function set_wownero_address(string memory wowneroAddress) external {
+        require(bytes(wowneroAddress).length > 0, "Wownero address must be provided.");
+        creatorWowneroAddress[msg.sender] = wowneroAddress;
     }
 
     // Mint a new token with a specific metadata hash location
