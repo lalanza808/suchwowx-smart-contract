@@ -41,7 +41,7 @@ contract SuchwowX is ERC721, ERC721URIStorage, Ownable {
     }
 
     // Specify new Wownero address
-    function set_wownero_address(string memory wowneroAddress) external {
+    function setWowneroAddress(string memory wowneroAddress) external {
         require(bytes(wowneroAddress).length > 0, "Wownero address must be provided.");
         creatorWowneroAddress[msg.sender] = wowneroAddress;
     }
