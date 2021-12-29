@@ -1,5 +1,5 @@
-var SuchwowX = artifacts.require("SuchwowX");
+var SuchWowX = artifacts.require("SuchWowX");
 
 module.exports = function(deployer) {
-  deployer.deploy(SuchwowX);
+  deployer.deploy(SuchWowX);
 };

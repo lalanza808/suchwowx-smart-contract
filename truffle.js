@@ -1,36 +1,38 @@
 require('dotenv').config();
-const HDWalletProvider = require('truffle-hdwallet-provider');
+const HDWalletProvider = require('@truffle/hdwallet-provider');
 
 module.exports = {
   networks: {
-    development: {
+    local: {
      host: "127.0.0.1",
      port: 8545,
      network_id: "*",
     },
-    rinkeby: {
-      provider: () => new HDWalletProvider(process.env.MNEMONIC, "https://rinkeby.infura.io/v3/" + process.env.INFURA_PID),
-      network_id: 4,
+    testnet: {
+      provider: () => new HDWalletProvider({
+        mnemonic: process.env.MNEMONIC,
+        providerOrUrl: "https://api.avax-test.network/ext/bc/C/rpc",
+        chainId: '43113',
+        addressIndex: 0
+      }),
+      network_id: "*",
       confirmations: 1,
       timeoutBlocks: 10,
       skipDryRun: true,
       production: false,
     },
     mainnet: {
-      provider: () => new HDWalletProvider(process.env.MNEMONIC, "https://mainnet.infura.io/v3/" + process.env.INFURA_PID),
-      network_id: 1,
+      provider: () => new HDWalletProvider({
+        mnemonic: process.env.MNEMONIC,
+        providerOrUrl: "https://api.avax.network/ext/bc/C/rpc",
+        chainId: '43114',
+        addressIndex: 0
+      }),
+      network_id: "*",
       confirmations: 3,
       timeoutBlocks: 30,
       skipDryRun: false,
       production: true,
-      gasPrice: 150000000000 // 150 gwei
-    },
-  },
-  mocha: {
-    reporter: "eth-gas-reporter",
-    reporterOptions: {
-      currency: "USD",
-      gasPrice: 2,
     },
   },
   compilers: {
@@ -48,6 +50,6 @@ module.exports = {
     'truffle-plugin-verify'
   ],
   api_keys: {
-    'etherscan': process.env.ETHERSCAN_API
+    'snowtrace': process.env.SNOWTRACE_API
   }
 };
