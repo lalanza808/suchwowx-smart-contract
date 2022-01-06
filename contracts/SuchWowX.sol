@@ -38,12 +38,15 @@ contract SuchWowX is ERC721, ERC721URIStorage, Ownable {
     mapping (string => uint256) public metadataTokenId;
 
     // Define starting contract state
+    address payable _owner;
     string public contractCreator = "lzamenace.eth";
     string public contractVersion = "v0.1";
     uint256 public contractTipCutPercent = 5;
     uint256 public publisherTipCutPercent = 5;
 
-    constructor() ERC721("SuchWowX", "SWX") {}
+    constructor() ERC721("SuchWowX", "SWX") {
+        _owner = payable(msg.sender);
+    }
 
     /************
     Contract Operations
@@ -135,19 +138,15 @@ contract SuchWowX is ERC721, ERC721URIStorage, Ownable {
         uint256 contractTipAmount = msg.value.div(hundo.div(contractTipCutPercent));
         uint256 publisherTipAmount = msg.value.div(hundo.div(publisherTipCutPercent));
         uint256 creatorTipAmount = msg.value.sub(contractTipAmount.add(publisherTipAmount));
-        // Store addresses to use
-        address creator = tokenMeme[tokenId].creatorAddress;
-        address publisher = tokenMeme[tokenId].publisherAddress;
-        address _contract_ = address(this);
         // Store tip amounts for sender and recipients to the chain
         userProfile[msg.sender].tippedAVAX = userProfile[msg.sender].tippedAVAX.add(msg.value);
         tokenMeme[tokenId].creatorTipsAVAX = tokenMeme[tokenId].creatorTipsAVAX.add(creatorTipAmount);
         tokenMeme[tokenId].publisherTipsAVAX = tokenMeme[tokenId].publisherTipsAVAX.add(publisherTipAmount);
         tokenMeme[tokenId].contractTipsAVAX = tokenMeme[tokenId].contractTipsAVAX.add(contractTipAmount);
         // Send transactions
-        payable(creator).transfer(creatorTipAmount);
-        payable(publisher).transfer(publisherTipAmount);
-        payable(_contract_).transfer(contractTipAmount);
+        payable(address(tokenMeme[tokenId].creatorAddress)).transfer(creatorTipAmount);
+        payable(address(tokenMeme[tokenId].publisherAddress)).transfer(publisherTipAmount);
+        payable(address(_owner)).transfer(contractTipAmount);
     }
 
     /************
