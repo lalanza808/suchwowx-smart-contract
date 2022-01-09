@@ -18,6 +18,9 @@ contract SuchWowX is ERC721, ERC721URIStorage, Ownable {
         uint256 publisherTipsAVAX;
         uint256 creatorTipsAVAX;
         uint256 contractTipsAVAX;
+        uint256 publisherTipsWOWX;
+        uint256 creatorTipsWOWX;
+        uint256 contractTipsWOWX;
         address publisherAddress;
         address creatorAddress;
         string metadataIPFSHash;
@@ -28,6 +31,7 @@ contract SuchWowX is ERC721, ERC721URIStorage, Ownable {
         string userHandle;
         string metadataIPFSHash;
         uint256 tippedAVAX;
+        uint256 tippedWOWX;
         uint256[] memesPublished;
         uint256[] memesCreated;
     }
@@ -38,14 +42,16 @@ contract SuchWowX is ERC721, ERC721URIStorage, Ownable {
     mapping (string => uint256) public metadataTokenId;
 
     // Define starting contract state
+    ERC20 wowx;
     address payable _owner;
     string public contractCreator = "lzamenace.eth";
     string public contractVersion = "v0.1";
     uint256 public contractTipCutPercent = 5;
     uint256 public publisherTipCutPercent = 5;
 
-    constructor() ERC721("SuchWowX", "SWX") {
+    constructor(address wowxAddress) ERC721("SuchWowX", "SWX") {
         _owner = payable(msg.sender);
+        wowx = ERC20(wowxAddress);
     }
 
     /************
@@ -122,7 +128,10 @@ contract SuchWowX is ERC721, ERC721URIStorage, Ownable {
           metadataIPFSHash: metadataIPFSHash,
           publisherTipsAVAX: 0,
           creatorTipsAVAX: 0,
-          contractTipsAVAX: 0
+          contractTipsAVAX: 0,
+          publisherTipsWOWX: 0,
+          creatorTipsWOWX: 0,
+          contractTipsWOWX: 0
         });
     }
 
@@ -130,23 +139,45 @@ contract SuchWowX is ERC721, ERC721URIStorage, Ownable {
     Tipping
     ************/
 
-    // Tip a token and it's creator
-    function tipAVAX(uint256 tokenId) public payable {
+    // Tip a token and it's creator with AVAX
+    function tipAVAX(uint256 tokenId, uint256 amount) public payable {
         require(tokenId <= totalSupply(), "Cannot tip non-existent token.");
         // Calculate tip amounts based upon stored cut percentages
         uint256 hundo = 100;
-        uint256 contractTipAmount = msg.value.div(hundo.div(contractTipCutPercent));
-        uint256 publisherTipAmount = msg.value.div(hundo.div(publisherTipCutPercent));
-        uint256 creatorTipAmount = msg.value.sub(contractTipAmount.add(publisherTipAmount));
-        // Store tip amounts for sender and recipients to the chain
-        userProfile[msg.sender].tippedAVAX = userProfile[msg.sender].tippedAVAX.add(msg.value);
-        tokenMeme[tokenId].creatorTipsAVAX = tokenMeme[tokenId].creatorTipsAVAX.add(creatorTipAmount);
-        tokenMeme[tokenId].publisherTipsAVAX = tokenMeme[tokenId].publisherTipsAVAX.add(publisherTipAmount);
-        tokenMeme[tokenId].contractTipsAVAX = tokenMeme[tokenId].contractTipsAVAX.add(contractTipAmount);
+        uint256 contractTipAmount = amount.div(hundo.div(contractTipCutPercent));
+        uint256 publisherTipAmount = amount.div(hundo.div(publisherTipCutPercent));
+        uint256 creatorTipAmount = amount.sub(contractTipAmount.add(publisherTipAmount));
         // Send transactions
         payable(address(tokenMeme[tokenId].creatorAddress)).transfer(creatorTipAmount);
         payable(address(tokenMeme[tokenId].publisherAddress)).transfer(publisherTipAmount);
         payable(address(_owner)).transfer(contractTipAmount);
+        // Store tip amounts for sender and recipients to the chain
+        userProfile[msg.sender].tippedAVAX = userProfile[msg.sender].tippedAVAX.add(amount);
+        tokenMeme[tokenId].creatorTipsAVAX = tokenMeme[tokenId].creatorTipsAVAX.add(creatorTipAmount);
+        tokenMeme[tokenId].publisherTipsAVAX = tokenMeme[tokenId].publisherTipsAVAX.add(publisherTipAmount);
+        tokenMeme[tokenId].contractTipsAVAX = tokenMeme[tokenId].contractTipsAVAX.add(contractTipAmount);
+    }
+
+    // Tip a token and it's creator with WOWX
+    function tipWOWX(uint256 tokenId, uint256 amount) public payable {
+        require(tokenId <= totalSupply(), "Cannot tip non-existent token.");
+        // Ensure proper allowance for contract to send WOWX on user behalf
+        uint256 allowance = wowx.allowance(msg.sender, address(this));
+        require(allowance >= amount, "WOWX token allowance not high enough, must approve additional token transfers first.");
+        // Calculate tip amounts based upon stored cut percentages
+        uint256 hundo = 100;
+        uint256 contractTipAmount = amount.div(hundo.div(contractTipCutPercent));
+        uint256 publisherTipAmount = amount.div(hundo.div(publisherTipCutPercent));
+        uint256 creatorTipAmount = amount.sub(contractTipAmount.add(publisherTipAmount));
+        // Send transactions
+        wowx.transferFrom(msg.sender, address(tokenMeme[tokenId].creatorAddress), creatorTipAmount);
+        wowx.transferFrom(msg.sender, address(tokenMeme[tokenId].publisherAddress), publisherTipAmount);
+        wowx.transferFrom(msg.sender, address(_owner), contractTipAmount);
+        // Store tip amounts for sender and recipients to the chain
+        userProfile[msg.sender].tippedWOWX = userProfile[msg.sender].tippedWOWX.add(amount);
+        tokenMeme[tokenId].creatorTipsWOWX = tokenMeme[tokenId].creatorTipsWOWX.add(creatorTipAmount);
+        tokenMeme[tokenId].publisherTipsWOWX = tokenMeme[tokenId].publisherTipsWOWX.add(publisherTipAmount);
+        tokenMeme[tokenId].contractTipsWOWX = tokenMeme[tokenId].contractTipsWOWX.add(contractTipAmount);
     }
 
     /************
@@ -169,4 +200,19 @@ contract SuchWowX is ERC721, ERC721URIStorage, Ownable {
     {
         // Prevent burning
     }
+}
+
+interface ERC20 {
+    function totalSupply() external view returns (uint256);
+    function balanceOf(address account) external view returns (uint256);
+    function transfer(address recipient, uint256 amount) external returns (bool);
+    function allowance(address owner, address spender) external view returns (uint256);
+    function approve(address spender, uint256 amount) external returns (bool);
+    function transferFrom(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) external returns (bool);
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
 }
